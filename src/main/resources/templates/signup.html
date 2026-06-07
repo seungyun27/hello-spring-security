@@ -52,5 +52,9 @@
         </div>
     </div>
 </div>
+<footer class="mt-5 py-3 text-center border-top">
+    <p>실습 수행 일시: <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd HH:mm:ss')}"></span>
+        | 학번: 2291073 | 성명: 김승윤</p>
+</footer>
 </body>
 </html>
