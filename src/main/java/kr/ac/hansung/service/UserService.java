@@ -34,6 +34,21 @@ public class UserService {
 
         userRepository.save(user);
     }
+    // 마이페이지 비밀번호 변경 로직
+    @Transactional
+    public void changePassword(String email,
+                               String currentPassword, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException(email));
+
+        // 비밀번호 매칭 검증
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다");
+        }
+        // 새 비밀번호 인코딩 후 저장
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
