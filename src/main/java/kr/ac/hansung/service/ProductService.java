@@ -33,6 +33,19 @@ public class ProductService {
         return productRepository.findByNameContaining(keyword, pageable);
     }
 
+    // 추가: 상품 정보 수정 기능
+    @Transactional
+    public Product updateProduct(Long id, ProductDto dto) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다: " + id));
+        product.setName(dto.getName());
+        product.setPrice(dto.getPrice());
+        product.setStock(dto.getStock());
+        if (dto.getDescription() != null) {
+            product.setDescription(dto.getDescription());
+        }
+        return product;
+    }
+
     @Transactional(readOnly = true)
     public Product findById(Long id) {
         return productRepository.findById(id)
