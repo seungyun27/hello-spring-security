@@ -1,8 +1,12 @@
 package kr.ac.hansung.controller;
 
 import kr.ac.hansung.dto.ProductDto;
+import kr.ac.hansung.entity.Product;
 import kr.ac.hansung.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +18,32 @@ public class ProductController {
 
     private final ProductService productService;
 
+    // 5개씩 페이징 처리 및 검색어 파라미터 연동
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("products", productService.findAll());
+    public String list(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+        // id 오름차순 순으로 페이지 요청 객체 생성
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id"));
+
+        // 공백 정규화
+        String normalizedKeyword = (keyword != null && !keyword.isBlank()) ? keyword : null;
+
+        Page<Product> productPage;
+        if (normalizedKeyword != null) {
+            // 키워드 검색
+            productPage = productService.searchProducts(normalizedKeyword, pageRequest);
+        } else {
+            // 전체 목록 조회
+            productPage = productService.getProducts(pageRequest);
+        }
+        model.addAttribute("productPage", productPage);
+        model.addAttribute("keyword", normalizedKeyword);
         return "products/list";
     }
+
 
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
